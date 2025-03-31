@@ -1,11 +1,71 @@
 # 프레임워크 로드 
-from flask import Flask, request, render_template, url_for
+from flask import Flask, request, render_template, url_for, redirect, session
 import pandas as pd
 import invest
 from database import MyDB
+from dotenv import load_dotenv
+import os
+from data import querys
+
+# .env 파일로드
+load_dotenv()
+
 
 # Flask Class 생성 
 app = Flask(__name__)
+
+app.secret_key = os.getenv('secret')
+
+mydb = MyDB(
+    host = os.getenv('host'),
+    port = int(os.getenv('port')),
+    user = os.getenv('user'),
+    pwd = os.getenv('pwd'),
+    db = os.getenv('db')
+)
+
+mydb.execute_query(querys.create_query)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/signup')
+def signup():
+    return render_template('signup.html')
+
+@app.route('/signin', methods=['post'])
+def signin():
+    input_id = request.form['id']
+    input_pass = request.form['password']
+
+    login_result = mydb.execute_query(
+        querys.login_query,
+        input_id,
+        input_pass
+    )
+
+    if len(login_result) == 1:
+        # 로그인 성공시 세션에 데이터 저장
+        session['user_info'] = [input_id, input_pass]
+        return redirect('/invest')
+    else:
+        return redirect('/')
+
+@app.route('/signup2', methods=['post'])
+def signup2():
+    input_id = request.form['id']
+    input_pass = request.form['password']
+    input_name = request.form['name']
+
+
+    check_result = mydb.execute_query(querys.check_query, input_id)
+
+    if len(check_result) == 0:
+        mydb.execute_query(querys.signup_query, input_id, input_pass, input_name, inplace=True)
+        return redirect('/')
+    else:
+        return redirect('signup')
 
 # 유저가 어떤 종목, 투자기간, 투자 전략 방식을 입력할수 있는 
 # 페이지를 보여주는 api 생성
