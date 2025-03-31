@@ -18,10 +18,11 @@ def buyandhold(
     print(_end)
     print(_col)
     print("바이앤홀드 df : ", len(result))
+    result['trade'] = 'buy'
     # 일별 수익율 컬럼을 생성 
-    result['daily_rtn'] = (result[_col].pct_change() + 1).fillna(1)
+    result['rtn'] = (result[_col].pct_change() + 1).fillna(1)
     # 누적 수익율 컬럼을 생성
-    result['acc_rtn'] = result['daily_rtn'].cumprod()
+    result['acc_rtn'] = result['rtn'].cumprod()
     print(f"""{_start.strftime('%Y-%m-%d')}부터 
           {_end.strftime('%Y-%m-%d')}까지 
           buyandhold의 수익율은 {result.iloc[-1, 2]}입니다""")

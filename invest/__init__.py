@@ -30,8 +30,6 @@ class Invest:
             _start = '2010-01-01', 
             _end = datetime.now()
     ):
-        
-        self.col=_col
         # _df에서 Date 컬럼이 존재하면 index로 변환
         if 'Date' in _df.columns:
             _df.set_index('Date', inplace=True)
@@ -56,6 +54,7 @@ class Invest:
             print(e)
             print('시작 시간 종료시간 타입이 맞지 않습니다 포멧은 YYYY-mm-dd')
             
+        self.col=_col
 
         
     # 수익율을 계산하는 함수 
